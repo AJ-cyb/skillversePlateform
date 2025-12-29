@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postpostgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -24,7 +24,7 @@ services:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: password  # Changé de admin123 à password
+      KC_DB_PASSWORD: password
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_HOSTNAME: localhost
@@ -37,6 +37,30 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  auth-service:
+    build: .
+    container_name: skillverse-auth-service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      # Variables Spring Boot standard
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/skillverse_auth
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      # Variables Keycloak
+      KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: skillverse
+      KEYCLOAK_CLIENT_ID: auth-service
+      KEYCLOAK_CLIENT_SECRET: V0gKkAonOm6f6WJPAccHTcZmaiiMwJfD
+      # Variable manquante pour JWT validation (Spring Security)
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/skillverse
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
 
 volumes:
   postgres_data:

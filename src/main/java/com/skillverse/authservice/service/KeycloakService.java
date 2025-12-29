@@ -26,15 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 public class KeycloakService {
 
     @Value("${keycloak.auth-server-url}")
-    private String keycloakUrl;
-
+    private String keycloakServerUrl;
+    
     @Value("${keycloak.realm}")
     private String realm;
-
-    @Value("${keycloak.resource}")
+    
+    @Value("${keycloak.client-id}")
     private String clientId;
-
-    @Value("${keycloak.credentials.secret}")
+    
+    @Value("${keycloak.client-secret}")
     private String clientSecret;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -43,7 +43,7 @@ public class KeycloakService {
      * Authenticate user with Keycloak and get access token
      */
     public Map<String, Object> authenticateUser(String username, String password) {
-        String tokenUrl = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+        String tokenUrl = keycloakServerUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -70,7 +70,7 @@ public class KeycloakService {
      * Refresh access token using refresh token
      */
     public Map<String, Object> refreshToken(String refreshToken) {
-        String tokenUrl = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+        String tokenUrl = keycloakServerUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -106,7 +106,7 @@ public class KeycloakService {
      * Logout user from Keycloak
      */
     public void logoutUser(String refreshToken) {
-        String logoutUrl = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/logout";
+        String logoutUrl = keycloakServerUrl + "/realms/" + realm + "/protocol/openid-connect/logout";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
